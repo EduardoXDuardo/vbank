@@ -67,6 +67,15 @@ public class TransactionService {
         return TransactionMapper.toDTO(transaction);
     }
 
+    @Transactional(readOnly = true)
+    public TransactionResponseDTO findById(Long id) {
+        // TODO: Implement proper exception handling and custom exceptions
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        return TransactionMapper.toDTO(transaction);
+    }
+
     private void processDeposit(Account account, BigDecimal amount) {
         // TODO: Implement proper exception handling and custom exceptions
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {

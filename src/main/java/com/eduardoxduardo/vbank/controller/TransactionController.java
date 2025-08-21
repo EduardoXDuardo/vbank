@@ -7,10 +7,7 @@ import com.eduardoxduardo.vbank.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,5 +20,11 @@ public class TransactionController {
     public ResponseEntity<TransactionResponseDTO> create(@Valid @RequestBody TransactionRequestDTO request) {
         TransactionResponseDTO transaction = transactionService.execute(request);
         return ResponseEntity.status(201).body(transaction);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionResponseDTO> findById(@PathVariable Long id) {
+        TransactionResponseDTO transaction = transactionService.findById(id);
+        return ResponseEntity.ok(transaction);
     }
 }
