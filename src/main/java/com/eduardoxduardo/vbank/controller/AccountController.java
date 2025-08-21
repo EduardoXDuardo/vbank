@@ -2,7 +2,9 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.AccountCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.service.AccountService;
+import com.eduardoxduardo.vbank.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
 
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
     @PostMapping
     public ResponseEntity<AccountResponseDTO> create(@RequestBody AccountCreateRequestDTO request) {
@@ -32,6 +35,12 @@ public class AccountController {
     public ResponseEntity<Page<AccountResponseDTO>> findAll(Pageable pageable) {
         Page<AccountResponseDTO> accountsPage = accountService.findAll(pageable);
         return ResponseEntity.ok(accountsPage);
+    }
+
+    @GetMapping("{id}/transactions")
+    public ResponseEntity<Page<TransactionResponseDTO>> findTransactionsByAccountId(@PathVariable Long id, Pageable pageable) {
+        Page<TransactionResponseDTO> transactionsPage = transactionService.findByAccountId(id, pageable);
+        return ResponseEntity.ok(transactionsPage);
     }
 
     @DeleteMapping("/{id}")

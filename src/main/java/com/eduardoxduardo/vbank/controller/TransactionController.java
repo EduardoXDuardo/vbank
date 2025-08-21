@@ -2,7 +2,6 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.TransactionRequestDTO;
 import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
-import com.eduardoxduardo.vbank.model.entities.Transaction;
 import com.eduardoxduardo.vbank.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class TransactionController {
         TransactionResponseDTO transaction = transactionService.findById(id);
         return ResponseEntity.ok(transaction);
     }
-    
+
     @GetMapping
     public ResponseEntity<Page<TransactionResponseDTO>> findAll(Pageable pageable) {
         Page<TransactionResponseDTO> transactions = transactionService.findAll(pageable);
