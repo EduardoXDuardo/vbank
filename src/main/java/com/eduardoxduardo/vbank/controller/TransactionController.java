@@ -6,6 +6,8 @@ import com.eduardoxduardo.vbank.model.entities.Transaction;
 import com.eduardoxduardo.vbank.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,5 +28,11 @@ public class TransactionController {
     public ResponseEntity<TransactionResponseDTO> findById(@PathVariable Long id) {
         TransactionResponseDTO transaction = transactionService.findById(id);
         return ResponseEntity.ok(transaction);
+    }
+    
+    @GetMapping
+    public ResponseEntity<Page<TransactionResponseDTO>> findAll(Pageable pageable) {
+        Page<TransactionResponseDTO> transactions = transactionService.findAll(pageable);
+        return ResponseEntity.ok(transactions);
     }
 }

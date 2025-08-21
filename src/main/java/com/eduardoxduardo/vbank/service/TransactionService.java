@@ -9,6 +9,8 @@ import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.model.enums.TransactionType;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -74,6 +76,12 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
         return TransactionMapper.toDTO(transaction);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TransactionResponseDTO> findAll(Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+        return transactions.map(TransactionMapper::toDTO);
     }
 
     private void processDeposit(Account account, BigDecimal amount) {
