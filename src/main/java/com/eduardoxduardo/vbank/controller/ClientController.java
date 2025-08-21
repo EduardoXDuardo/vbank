@@ -41,4 +41,10 @@ public class ClientController {
         ClientResponseDTO updatedClient = clientService.update(id, request);
         return ResponseEntity.ok(updatedClient);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        clientService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

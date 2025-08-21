@@ -52,6 +52,7 @@ public class ClientService {
     @Transactional
     public ClientResponseDTO update(Long id, ClientUpdateRequestDTO request) {
         // Check if the client exists
+        // TODO: Implement proper exception handling and custom exceptions
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
@@ -80,5 +81,15 @@ public class ClientService {
         // Save the updated client
         Client updatedClient = clientRepository.save(existingClient);
         return ClientMapper.toDTO(updatedClient);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        // Check if the client exists
+        // TODO: Implement proper exception handling and custom exceptions
+        if (!clientRepository.existsById(id)) {
+            throw new RuntimeException("Client not found");
+        }
+        clientRepository.deleteById(id);
     }
 }
