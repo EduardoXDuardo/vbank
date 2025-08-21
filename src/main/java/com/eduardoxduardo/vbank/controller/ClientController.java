@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,11 @@ public class ClientController {
     public ResponseEntity<Page<ClientResponseDTO>> findAll(Pageable pageable) {
         Page<ClientResponseDTO> clientsPage = clientService.findAll(pageable);
         return ResponseEntity.ok(clientsPage);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ClientUpdateRequestDTO request) {
+        ClientResponseDTO updatedClient = clientService.update(id, request);
+        return ResponseEntity.ok(updatedClient);
     }
 }

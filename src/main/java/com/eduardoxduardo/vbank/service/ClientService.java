@@ -48,4 +48,37 @@ public class ClientService {
         Page<Client> clientsPage = clientRepository.findAll(pageable);
         return clientsPage.map(ClientMapper::toDTO);
     }
+
+    @Transactional
+    public ClientResponseDTO update(Long id, ClientUpdateRequestDTO request) {
+        // Check if the client exists
+        Client existingClient = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        // Update the client's fields
+        // Note: None of them are required, so we can update all fields
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            existingClient.setName(request.getName());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            if (!request.getEmail().equals(existingClient.getEmail()) &&
+                    clientRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("Client with this email already exists");
+            }
+            existingClient.setEmail(request.getEmail());
+        }
+
+        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
+            existingClient.setPhone(request.getPhone());
+        }
+
+        if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+            existingClient.setAddress(request.getAddress());
+        }
+
+        // Save the updated client
+        Client updatedClient = clientRepository.save(existingClient);
+        return ClientMapper.toDTO(updatedClient);
+    }
 }
