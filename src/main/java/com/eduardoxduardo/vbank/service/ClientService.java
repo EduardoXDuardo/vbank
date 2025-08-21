@@ -2,10 +2,13 @@ package com.eduardoxduardo.vbank.service;
 
 import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.mapper.ClientMapper;
 import com.eduardoxduardo.vbank.model.entities.Client;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +34,18 @@ public class ClientService {
         return ClientMapper.toDTO(savedClient);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ClientResponseDTO findById(Long id) {
         // TODO: Implement proper exception handling and custom exception
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
         return ClientMapper.toDTO(client);
+    }
+
+    // TODO: Change the method from findAll to search and implement filtering and sorting functionality
+    @Transactional(readOnly = true)
+    public Page<ClientResponseDTO> findAll(Pageable pageable) {
+        Page<Client> clientsPage = clientRepository.findAll(pageable);
+        return clientsPage.map(ClientMapper::toDTO);
     }
 }
