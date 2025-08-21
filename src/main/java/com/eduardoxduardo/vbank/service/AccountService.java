@@ -5,13 +5,18 @@ import com.eduardoxduardo.vbank.dto.AccountResponseDTO;
 import com.eduardoxduardo.vbank.mapper.AccountMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Client;
+import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
+import com.eduardoxduardo.vbank.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public AccountResponseDTO create(AccountCreateRequestDTO request) {
@@ -64,6 +70,25 @@ public class AccountService {
     public Page<AccountResponseDTO> findAll(Pageable pageable) {
         Page<Account> accountsPage = accountRepository.findAll(pageable);
         return accountsPage.map(AccountMapper::toDTO);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        // Check if the account exists by ID
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        // Delete the account only if the balance is zero
+        if (!Objects.equals(account.getBalance(), BigDecimal.ZERO)) {
+            throw new RuntimeException("Cannot delete account with non-zero balance");
+        }
+
+        // Do not delete the account if it has pending transactions associated with it
+        if (transactionRepository.existsByAccountIdAndStatus(id, TransactionStatus.PENDING)) {
+            throw new RuntimeException("Cannot delete account with pending transactions");
+        }
+
+        accountRepository.deleteById(id);
     }
 
     private String generateAccountNumber(Long clientId) {

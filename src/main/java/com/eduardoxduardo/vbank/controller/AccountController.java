@@ -33,4 +33,10 @@ public class AccountController {
         Page<AccountResponseDTO> accountsPage = accountService.findAll(pageable);
         return ResponseEntity.ok(accountsPage);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        accountService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
