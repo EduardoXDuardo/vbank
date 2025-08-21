@@ -1,13 +1,12 @@
 package com.eduardoxduardo.vbank.controller;
 
+import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
 import com.eduardoxduardo.vbank.service.ClientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -15,6 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientController {
 
     private final ClientService clientService;
+
+    @PostMapping
+    public ResponseEntity<ClientResponseDTO> create(@Valid @RequestBody ClientCreateRequestDTO request) {
+        return ResponseEntity.status(201).body(clientService.create(request));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClientResponseDTO> findById(@PathVariable Long id) {
