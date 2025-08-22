@@ -87,12 +87,6 @@ public class TransactionService {
         return transactions.map(TransactionMapper::toDTO);
     }
 
-    @Transactional(readOnly = true)
-    public Page<TransactionResponseDTO> findByAccountId(Long accountId, Pageable pageable) {
-        Page<Transaction> transactions = transactionRepository.findByAccountId(accountId, pageable);
-        return transactions.map(TransactionMapper::toDTO);
-    }
-
     private void processDeposit(Account account, BigDecimal amount) {
         // TODO: Implement proper exception handling and custom exceptions
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {

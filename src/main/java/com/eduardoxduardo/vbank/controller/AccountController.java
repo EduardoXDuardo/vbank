@@ -38,12 +38,6 @@ public class AccountController {
         return ResponseEntity.ok(accountsPage);
     }
 
-    @GetMapping("{id}/transactions")
-    public ResponseEntity<Page<TransactionResponseDTO>> findTransactionsByAccountId(@PathVariable Long id, Pageable pageable) {
-        Page<TransactionResponseDTO> transactionsPage = transactionService.findByAccountId(id, pageable);
-        return ResponseEntity.ok(transactionsPage);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         accountService.delete(id);
