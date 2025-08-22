@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.transaction.TransactionRequestDTO;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionSearchCriteria;
 import com.eduardoxduardo.vbank.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,8 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TransactionResponseDTO>> findAll(Pageable pageable) {
-        Page<TransactionResponseDTO> transactions = transactionService.findAll(pageable);
+    public ResponseEntity<Page<TransactionResponseDTO>> search(TransactionSearchCriteria criteria, Pageable pageable) {
+        Page<TransactionResponseDTO> transactions = transactionService.search(criteria, pageable);
         return ResponseEntity.ok(transactions);
     }
 }

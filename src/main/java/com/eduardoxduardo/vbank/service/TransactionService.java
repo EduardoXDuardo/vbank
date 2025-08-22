@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.service;
 
 import com.eduardoxduardo.vbank.dto.transaction.TransactionRequestDTO;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionSearchCriteria;
 import com.eduardoxduardo.vbank.mapper.TransactionMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Transaction;
@@ -11,6 +12,7 @@ import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,8 +81,9 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TransactionResponseDTO> findAll(Pageable pageable) {
-        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+    public Page<TransactionResponseDTO> search(TransactionSearchCriteria criteria, Pageable pageable) {
+        Specification<Transaction> spec = createSpecification(criteria);
+        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         return transactions.map(TransactionMapper::toDTO);
     }
 
@@ -118,5 +121,38 @@ public class TransactionService {
         transaction.setStatus(TransactionStatus.COMPLETED);
 
         return transactionRepository.save(transaction);
+    }
+
+    private Specification<Transaction> createSpecification(TransactionSearchCriteria criteria) {
+        return (root, query, cb) -> {
+            var predicates = cb.conjunction();
+
+            if (criteria.getId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("id"), criteria.getId()));
+            }
+            if (criteria.getAccountId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("account").get("id"), criteria.getAccountId()));
+            }
+            if (criteria.getType() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("type"), criteria.getType()));
+            }
+            if (criteria.getStatus() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("status"), criteria.getStatus()));
+            }
+            if (criteria.getMinAmount() != null) {
+                predicates = cb.and(predicates, cb.greaterThanOrEqualTo(root.get("amount"), criteria.getMinAmount()));
+            }
+            if (criteria.getMaxAmount() != null) {
+                predicates = cb.and(predicates, cb.lessThanOrEqualTo(root.get("amount"), criteria.getMaxAmount()));
+            }
+            if (criteria.getAfterDate() != null) {
+                predicates = cb.and(predicates, cb.greaterThanOrEqualTo(root.get("timestamp"), criteria.getAfterDate()));
+            }
+            if (criteria.getBeforeDate() != null) {
+                predicates = cb.and(predicates, cb.lessThanOrEqualTo(root.get("timestamp"), criteria.getBeforeDate()));
+            }
+
+            return predicates;
+        };
     }
 }
