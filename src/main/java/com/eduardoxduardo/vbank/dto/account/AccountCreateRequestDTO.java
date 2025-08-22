@@ -1,4 +1,4 @@
-package com.eduardoxduardo.vbank.dto;
+package com.eduardoxduardo.vbank.dto.account;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

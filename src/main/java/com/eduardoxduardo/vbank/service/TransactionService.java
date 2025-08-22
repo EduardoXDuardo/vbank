@@ -1,7 +1,7 @@
 package com.eduardoxduardo.vbank.service;
 
-import com.eduardoxduardo.vbank.dto.TransactionRequestDTO;
-import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionRequestDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.mapper.TransactionMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Transaction;

@@ -1,5 +1,6 @@
-package com.eduardoxduardo.vbank.dto;
+package com.eduardoxduardo.vbank.dto.transaction;
 
+import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
 import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.model.enums.TransactionType;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

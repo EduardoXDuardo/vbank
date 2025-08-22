@@ -1,6 +1,6 @@
-package com.eduardoxduardo.vbank.dto;
+package com.eduardoxduardo.vbank.dto.account;
 
-import com.eduardoxduardo.vbank.model.entities.Client;
+import com.eduardoxduardo.vbank.dto.client.ClientResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

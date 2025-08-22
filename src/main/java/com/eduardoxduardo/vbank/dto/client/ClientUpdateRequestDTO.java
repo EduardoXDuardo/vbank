@@ -1,6 +1,6 @@
-package com.eduardoxduardo.vbank.dto;
+package com.eduardoxduardo.vbank.dto.client;
 
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +10,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientSearchCriteria {
-    private Long id;
-    private String document;
+public class ClientUpdateRequestDTO {
+
     private String name;
+
+    @Email(message = "Email should be valid")
     private String email;
+
     private String phone;
+
+    private String address;
 }

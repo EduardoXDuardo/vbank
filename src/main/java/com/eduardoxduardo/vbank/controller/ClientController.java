@@ -1,9 +1,9 @@
 package com.eduardoxduardo.vbank.controller;
 
-import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
-import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
-import com.eduardoxduardo.vbank.dto.ClientSearchCriteria;
-import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientCreateRequestDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientSearchCriteria;
+import com.eduardoxduardo.vbank.dto.client.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

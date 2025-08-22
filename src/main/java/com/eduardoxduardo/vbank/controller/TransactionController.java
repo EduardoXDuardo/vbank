@@ -1,7 +1,7 @@
 package com.eduardoxduardo.vbank.controller;
 
-import com.eduardoxduardo.vbank.dto.TransactionRequestDTO;
-import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionRequestDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

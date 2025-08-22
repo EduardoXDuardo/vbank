@@ -1,9 +1,9 @@
 package com.eduardoxduardo.vbank.service;
 
-import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
-import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
-import com.eduardoxduardo.vbank.dto.ClientSearchCriteria;
-import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientCreateRequestDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientSearchCriteria;
+import com.eduardoxduardo.vbank.dto.client.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.mapper.ClientMapper;
 import com.eduardoxduardo.vbank.model.entities.Client;
 import com.eduardoxduardo.vbank.repository.ClientRepository;

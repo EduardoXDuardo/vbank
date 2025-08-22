@@ -1,6 +1,6 @@
 package com.eduardoxduardo.vbank.mapper;
 
-import com.eduardoxduardo.vbank.dto.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
 import com.eduardoxduardo.vbank.model.entities.Account;
 
 public class AccountMapper {

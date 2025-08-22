@@ -1,8 +1,8 @@
 package com.eduardoxduardo.vbank.controller;
 
-import com.eduardoxduardo.vbank.dto.AccountCreateRequestDTO;
-import com.eduardoxduardo.vbank.dto.AccountResponseDTO;
-import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountCreateRequestDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.service.AccountService;
 import com.eduardoxduardo.vbank.service.TransactionService;
 import lombok.RequiredArgsConstructor;

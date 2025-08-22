@@ -1,6 +1,6 @@
 package com.eduardoxduardo.vbank.mapper;
 
-import com.eduardoxduardo.vbank.dto.TransactionResponseDTO;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.model.entities.Transaction;
 
 public class TransactionMapper {

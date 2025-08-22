@@ -1,7 +1,7 @@
 package com.eduardoxduardo.vbank.service;
 
-import com.eduardoxduardo.vbank.dto.AccountCreateRequestDTO;
-import com.eduardoxduardo.vbank.dto.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountCreateRequestDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
 import com.eduardoxduardo.vbank.mapper.AccountMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Client;

@@ -1,7 +1,7 @@
 package com.eduardoxduardo.vbank.mapper;
 
-import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
-import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientCreateRequestDTO;
+import com.eduardoxduardo.vbank.dto.client.ClientResponseDTO;
 import com.eduardoxduardo.vbank.model.entities.Client;
 
 public class ClientMapper {
