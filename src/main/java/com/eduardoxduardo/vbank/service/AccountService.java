@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.service;
 
 import com.eduardoxduardo.vbank.dto.account.AccountCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountSearchCriteria;
 import com.eduardoxduardo.vbank.mapper.AccountMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Client;
@@ -12,6 +13,7 @@ import com.eduardoxduardo.vbank.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,10 +67,12 @@ public class AccountService {
         return AccountMapper.toDTO(account);
     }
 
-    // TODO: Change the method from findAll to search and implement filtering and sorting functionality
     @Transactional(readOnly = true)
-    public Page<AccountResponseDTO> findAll(Pageable pageable) {
-        Page<Account> accountsPage = accountRepository.findAll(pageable);
+    public Page<AccountResponseDTO> search(AccountSearchCriteria criteria, Pageable pageable) {
+        Specification<Account> spec = createSpecification(criteria);
+
+        Page<Account> accountsPage = accountRepository.findAll(spec, pageable);
+
         return accountsPage.map(AccountMapper::toDTO);
     }
 
@@ -94,5 +98,25 @@ public class AccountService {
     private String generateAccountNumber(Long clientId) {
         // TODO: If implementing multiple accounts per client, change the logic to generate account numbers based on the account type
         return String.format("%04d-1", clientId);
+    }
+
+    private Specification<Account> createSpecification(AccountSearchCriteria criteria) {
+        return (root, query, cb) -> {
+            var predicates = cb.conjunction();
+
+            if (criteria.getId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("id"), criteria.getId()));
+            }
+
+            if (criteria.getAccountNumber() != null && !criteria.getAccountNumber().isEmpty()) {
+                predicates = cb.and(predicates, cb.equal(root.get("accountNumber"), criteria.getAccountNumber()));
+            }
+
+            if (criteria.getClientId() != null) {
+                predicates = cb.and(predicates, cb.equal(root.get("client").get("id"), criteria.getClientId()));
+            }
+
+            return predicates;
+        };
     }
 }

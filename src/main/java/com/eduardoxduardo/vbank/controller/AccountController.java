@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.account.AccountCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.account.AccountResponseDTO;
+import com.eduardoxduardo.vbank.dto.account.AccountSearchCriteria;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.service.AccountService;
 import com.eduardoxduardo.vbank.service.TransactionService;
@@ -32,8 +33,8 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<AccountResponseDTO>> findAll(Pageable pageable) {
-        Page<AccountResponseDTO> accountsPage = accountService.findAll(pageable);
+    public ResponseEntity<Page<AccountResponseDTO>> search(AccountSearchCriteria criteria, Pageable pageable) {
+        Page<AccountResponseDTO> accountsPage = accountService.search(criteria, pageable);
         return ResponseEntity.ok(accountsPage);
     }
 

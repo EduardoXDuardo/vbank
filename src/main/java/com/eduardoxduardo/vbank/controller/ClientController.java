@@ -31,10 +31,7 @@ public class ClientController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ClientResponseDTO>> search(
-            ClientSearchCriteria criteria,
-            Pageable pageable
-    ) {
+    public ResponseEntity<Page<ClientResponseDTO>> search(ClientSearchCriteria criteria, Pageable pageable) {
         Page<ClientResponseDTO> clientsPage = clientService.search(criteria, pageable);
         return ResponseEntity.ok(clientsPage);
     }
