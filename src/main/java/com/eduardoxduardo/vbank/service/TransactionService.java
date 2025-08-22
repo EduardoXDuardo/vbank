@@ -10,6 +10,8 @@ import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.model.enums.TransactionType;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
+import com.eduardoxduardo.vbank.service.exceptions.BusinessViolationException;
+import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -52,9 +54,8 @@ public class TransactionService {
 
         // --- Current Synchronous Implementation ---
 
-        // TODO: Implement proper exception handling and custom exceptions
         Account account = accountRepository.findById(request.getAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account with ID: " + request.getAccountId() + " not found"));
 
         // Validate transaction type and amount
         if (request.getType() == TransactionType.DEPOSIT) {
@@ -73,9 +74,8 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public TransactionResponseDTO findById(Long id) {
-        // TODO: Implement proper exception handling and custom exceptions
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction with ID: " + id + " not found"));
 
         return TransactionMapper.toDTO(transaction);
     }
@@ -88,20 +88,18 @@ public class TransactionService {
     }
 
     private void processDeposit(Account account, BigDecimal amount) {
-        // TODO: Implement proper exception handling and custom exceptions
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("The deposit amount must be positive.");
+            throw new BusinessViolationException("Deposit amount must be greater than zero");
         }
         account.setBalance(account.getBalance().add(amount));
     }
 
     private void processWithdrawal(Account account, BigDecimal amount) {
-        // TODO: Implement proper exception handling and custom exceptions
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("The withdrawal amount must be positive.");
+            throw new BusinessViolationException("Withdrawal amount must be greater than zero");
         }
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("The withdrawal amount exceeds the account balance.");
+            throw new BusinessViolationException("The withdrawal amount exceeds the account balance.");
         }
         account.setBalance(account.getBalance().subtract(amount));
     }

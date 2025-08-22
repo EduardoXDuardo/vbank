@@ -7,6 +7,8 @@ import com.eduardoxduardo.vbank.dto.client.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.mapper.ClientMapper;
 import com.eduardoxduardo.vbank.model.entities.Client;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
+import com.eduardoxduardo.vbank.service.exceptions.BusinessViolationException;
+import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,12 +25,11 @@ public class ClientService {
     @Transactional
     public ClientResponseDTO create(ClientCreateRequestDTO request) {
         // Check if the client already exists by document or email
-        // TODO: Implement proper exception handling and custom exceptions
         if (clientRepository.existsByDocument(request.getDocument())) {
-            throw new RuntimeException("Client with this document already exists");
+            throw new BusinessViolationException("Client with the document" + request.getDocument() + " already exists");
         }
         if (clientRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Client with this email already exists");
+            throw new BusinessViolationException("Client with the email" + request.getEmail() + " already exists");
         }
 
         Client client = ClientMapper.toEntity(request);
@@ -38,9 +39,8 @@ public class ClientService {
 
     @Transactional(readOnly = true)
     public ClientResponseDTO findById(Long id) {
-        // TODO: Implement proper exception handling and custom exception
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client with ID: " + id + " not found"));
         return ClientMapper.toDTO(client);
     }
 
@@ -56,9 +56,8 @@ public class ClientService {
     @Transactional
     public ClientResponseDTO update(Long id, ClientUpdateRequestDTO request) {
         // Check if the client exists
-        // TODO: Implement proper exception handling and custom exceptions
         Client existingClient = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client with ID: " + id + " not found"));
 
         // Update the client's fields
         // Note: None of them are required, so we can update all fields
@@ -69,7 +68,7 @@ public class ClientService {
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
             if (!request.getEmail().equals(existingClient.getEmail()) &&
                     clientRepository.existsByEmail(request.getEmail())) {
-                throw new RuntimeException("Client with this email already exists");
+                throw new BusinessViolationException("Client with the email" + request.getEmail() + " already exists");
             }
             existingClient.setEmail(request.getEmail());
         }
@@ -90,9 +89,8 @@ public class ClientService {
     @Transactional
     public void delete(Long id) {
         // Check if the client exists
-        // TODO: Implement proper exception handling and custom exceptions
         if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client not found");
+            throw new ResourceNotFoundException("Client with ID: " + id + " not found");
         }
         clientRepository.deleteById(id);
     }
@@ -108,7 +106,7 @@ public class ClientService {
 
             if (criteria.getDocument() != null && !criteria.getDocument().isBlank()) {
                 predicates = criteriaBuilder.and(predicates,
-                        criteriaBuilder.equal(criteriaBuilder.lower(root.get("document")), "%" + criteria.getDocument() + "%"));
+                        criteriaBuilder.equal(root.get("document"), criteria.getDocument()));
             }
 
             if (criteria.getName() != null && !criteria.getName().isBlank()) {

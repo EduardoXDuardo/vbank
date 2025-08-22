@@ -10,6 +10,8 @@ import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
+import com.eduardoxduardo.vbank.service.exceptions.BusinessViolationException;
+import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,14 +33,8 @@ public class AccountService {
     @Transactional
     public AccountResponseDTO create(AccountCreateRequestDTO request) {
         // Check if the client exists and is valid
-        // TODO: Implement proper exception handling and custom exceptions
         Client client = clientRepository.findById(request.getClientId())
-                .orElseThrow(() -> new RuntimeException("Client not found"));
-        // For now, a client can only have one account
-        // TODO: If implementing multiple accounts per client (account types), remove this check
-        if (accountRepository.existsByClientId(request.getClientId())) {
-            throw new RuntimeException("Client already has an account");
-        }
+                .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + request.getClientId() + " not found"));
 
         // Create a new account
         // Note: The default balance is set to zero in the Account entity
@@ -61,9 +57,8 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountResponseDTO findById(Long id) {
         // Check if the account exists by ID
-        // TODO: Implement proper exception handling and custom exceptions
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account with ID " + id + " not found"));
         return AccountMapper.toDTO(account);
     }
 
@@ -80,23 +75,22 @@ public class AccountService {
     public void delete(Long id) {
         // Check if the account exists by ID
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account with ID " + id + " not found"));
 
         // Delete the account only if the balance is zero
         if (!Objects.equals(account.getBalance(), BigDecimal.ZERO)) {
-            throw new RuntimeException("Cannot delete account with non-zero balance");
+            throw new BusinessViolationException("Cannot delete account with non-zero balance");
         }
 
         // Do not delete the account if it has pending transactions associated with it
         if (transactionRepository.existsByAccountIdAndStatus(id, TransactionStatus.PENDING)) {
-            throw new RuntimeException("Cannot delete account with pending transactions");
+            throw new BusinessViolationException("Cannot delete account with pending transactions");
         }
 
         accountRepository.deleteById(id);
     }
 
     private String generateAccountNumber(Long clientId) {
-        // TODO: If implementing multiple accounts per client, change the logic to generate account numbers based on the account type
         return String.format("%04d-1", clientId);
     }
 
