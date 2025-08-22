@@ -2,12 +2,14 @@ package com.eduardoxduardo.vbank.service;
 
 import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.ClientSearchCriteria;
 import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.mapper.ClientMapper;
 import com.eduardoxduardo.vbank.model.entities.Client;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,10 +44,12 @@ public class ClientService {
         return ClientMapper.toDTO(client);
     }
 
-    // TODO: Change the method from findAll to search and implement filtering and sorting functionality
     @Transactional(readOnly = true)
-    public Page<ClientResponseDTO> findAll(Pageable pageable) {
-        Page<Client> clientsPage = clientRepository.findAll(pageable);
+    public Page<ClientResponseDTO> search(ClientSearchCriteria criteria, Pageable pageable) {
+        Specification<Client> spec = createSpecification(criteria);
+
+        Page<Client> clientsPage = clientRepository.findAll(spec, pageable);
+
         return clientsPage.map(ClientMapper::toDTO);
     }
 
@@ -91,5 +95,38 @@ public class ClientService {
             throw new RuntimeException("Client not found");
         }
         clientRepository.deleteById(id);
+    }
+
+    private Specification<Client> createSpecification(ClientSearchCriteria criteria) {
+        return (root, query, criteriaBuilder) -> {
+            var predicates = criteriaBuilder.conjunction();
+
+            if (criteria.getId() != null) {
+                predicates = criteriaBuilder.and(predicates,
+                        criteriaBuilder.equal(root.get("id"), criteria.getId()));
+            }
+
+            if (criteria.getDocument() != null && !criteria.getDocument().isBlank()) {
+                predicates = criteriaBuilder.and(predicates,
+                        criteriaBuilder.equal(criteriaBuilder.lower(root.get("document")), "%" + criteria.getDocument() + "%"));
+            }
+
+            if (criteria.getName() != null && !criteria.getName().isBlank()) {
+                predicates = criteriaBuilder.and(predicates,
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + criteria.getName().toLowerCase() + "%"));
+            }
+
+            if (criteria.getEmail() != null && !criteria.getEmail().isBlank()) {
+                predicates = criteriaBuilder.and(predicates,
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + criteria.getEmail().toLowerCase() + "%"));
+            }
+
+            if (criteria.getPhone() != null && !criteria.getPhone().isBlank()) {
+                predicates = criteriaBuilder.and(predicates,
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")), "%" + criteria.getPhone().toLowerCase() + "%"));
+            }
+
+            return predicates;
+        };
     }
 }

@@ -2,6 +2,7 @@ package com.eduardoxduardo.vbank.controller;
 
 import com.eduardoxduardo.vbank.dto.ClientCreateRequestDTO;
 import com.eduardoxduardo.vbank.dto.ClientResponseDTO;
+import com.eduardoxduardo.vbank.dto.ClientSearchCriteria;
 import com.eduardoxduardo.vbank.dto.ClientUpdateRequestDTO;
 import com.eduardoxduardo.vbank.service.ClientService;
 import jakarta.validation.Valid;
@@ -29,10 +30,12 @@ public class ClientController {
         return ResponseEntity.ok(clientResponse);
     }
 
-    // TODO: Change the method from findAll to search and implement filtering and sorting functionality
     @GetMapping
-    public ResponseEntity<Page<ClientResponseDTO>> findAll(Pageable pageable) {
-        Page<ClientResponseDTO> clientsPage = clientService.findAll(pageable);
+    public ResponseEntity<Page<ClientResponseDTO>> search(
+            ClientSearchCriteria criteria,
+            Pageable pageable
+    ) {
+        Page<ClientResponseDTO> clientsPage = clientService.search(criteria, pageable);
         return ResponseEntity.ok(clientsPage);
     }
 
