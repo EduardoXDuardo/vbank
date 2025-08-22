@@ -4,8 +4,8 @@
 
 -- Insert clients
 INSERT INTO clients (id, name, document, email, phone, address) VALUES
-                                                                    (1, 'Luiz Eduardo da Silva', '111.222.333-44', 'luiz.e.silva@email.com', '(11) 98765-4321', 'Rua Bem Legal, 123, São Paulo, SP'),
-                                                                    (2, 'Douglas Castelluber', '222.333.444-55', 'douglas.castelluber@email.com', '(11) 91234-5678', 'Avenida da Felicidade, 456, São Paulo, SP');
+                                                                    (1, 'Luiz Eduardo da Silva', '11122233344', 'luiz.e.silva@email.com', '11987654321', 'Rua Bem Legal, 123, São Paulo, SP'),
+                                                                    (2, 'Douglas Castelluber', '22233344455', 'douglas.castelluber@email.com', '1191234-5678', 'Avenida da Felicidade, 456, São Paulo, SP');
 
 -- Insert accounts for clients
 -- Note: Assuming bigserial starts IDs from 1
