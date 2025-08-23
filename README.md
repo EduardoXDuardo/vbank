@@ -3,6 +3,7 @@
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue)
 
 ## 🏦 Project Description
 
@@ -35,12 +36,13 @@ This project is **fully completed** (can still be improved tho), including all c
 
 ### Prerequisites
 -   Java 21 JDK
--   PostgreSQL 15+
 -   Maven 3.9+
--   Docker Desktop (for the RabbitMQ broker)
+-   Docker Desktop
 -   An IDE (e.g., IntelliJ, VSCode) or a terminal.
 
 ### How to Run the Project
+
+The project is fully containerized with Docker Compose, making the setup process extremely simple.
 
 1.  **Clone the repository:**
     ```bash
@@ -48,17 +50,23 @@ This project is **fully completed** (can still be improved tho), including all c
     cd vbank
     ```
 
-2.  **Configure the Database:**
-    -   Ensure you have a running instance of PostgreSQL.
-    -   Create a new database named `vbank`.
-    -   In the `src/main/resources/` directory, rename `application.properties.example` to `application.properties`.
-    -   Open the new `application.properties` and enter your local PostgreSQL username and password.
+2.  **Configure Environment Variables:**
+    -   In the root of the project, rename the file `.env.example` to `.env`.
+    -   (Opcional) Open the `.env` file and change the default database password if you wish.
 
 3.  **Run the Application:**
+    -   Ensure Docker Desktop is running.
+    -   Execute the following command from the project root:
     ```bash
     mvn spring-boot:run
     ```
-    The API will be available at `http://localhost:8080`. The database tables will be created and populated with sample data automatically on the first run.
+
+The `spring-boot-docker-compose` dependency will automatically:
+1.  Read the `compose.yaml` file.
+2.  Start the **PostgreSQL** and **RabbitMQ** containers.
+3.  Configure the Spring application to connect to them seamlessly.
+
+The API will be available at `http://localhost:8080`.
 
 ---
 
@@ -69,6 +77,7 @@ This project is **fully completed** (can still be improved tho), including all c
 -   **Advanced Querying:** JPA Specifications
 -   **Messaging:** Spring AMQP, RabbitMQ, Docker Compose
 -   **Documentation:** SpringDoc OpenAPI (Swagger UI)
+-   **Configuration:** `spring-boot-dotenv` for externalized configuration
 -   **Build Tool:** Maven
 -   **Code Quality:** Lombok
 
