@@ -1,6 +1,7 @@
 package com.eduardoxduardo.vbank.service;
 
 import com.eduardoxduardo.vbank.config.RabbitMQConfig;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionEventDTO;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Transaction;
 import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
@@ -26,7 +27,8 @@ public class TransactionConsumer {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
     @Transactional
-    public void processTransaction(Long transactionId) {
+    public void processTransaction(TransactionEventDTO event) {
+        Long transactionId = event.getTransactionId();
         log.info("Processing transaction with ID: {}", transactionId);
 
         Transaction transaction = transactionRepository.findById(transactionId)
@@ -68,6 +70,8 @@ public class TransactionConsumer {
         // Performing the deposit
         account.setBalance(account.getBalance().add(transaction.getAmount()));
 
+        log.info("Successfully deposited {} to account ID {}. New balance: {}", transaction.getAmount(), account.getId(), account.getBalance());
+        
         // Marking the transaction as COMPLETED and saving the account
         transaction.setStatus(TransactionStatus.COMPLETED);
         accountRepository.save(account);
@@ -86,6 +90,8 @@ public class TransactionConsumer {
         
         // Performing the withdrawal
         account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+
+        log.info("Successfully withdrew {} from account ID {}. New balance: {}", transaction.getAmount(), account.getId(), account.getBalance());
 
         // Marking the transaction as COMPLETED and saving the account
         transaction.setStatus(TransactionStatus.COMPLETED);
