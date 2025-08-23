@@ -24,17 +24,17 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @Operation(summary = "Create a new transaction")
+    @Operation(summary = "Create a new transaction (deposit or withdrawal)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Transaction created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data, e.g., missing required fields or invalid amount"),
-            @ApiResponse(responseCode = "404", description = "Account not found for the provided account ID"),
-            @ApiResponse(responseCode = "422", description = "Validation error, e.g., invalid transaction type")
+            @ApiResponse(responseCode = "202", description = "Transaction request accepted for processing"),
+            @ApiResponse(responseCode = "400", description = "Invalid transaction request data"),
+            @ApiResponse(responseCode = "404", description = "Account not found for the provided account ID")
     })
     @PostMapping
     public ResponseEntity<TransactionResponseDTO> create(@Valid @RequestBody TransactionRequestDTO request) {
-        TransactionResponseDTO transaction = transactionService.execute(request);
-        return ResponseEntity.status(201).body(transaction);
+        TransactionResponseDTO transaction = transactionService.request(request);
+        // Using 202 Accepted to indicate that the request has been accepted for processing, but maybe the processing is not complete.
+        return ResponseEntity.status(202).body(transaction);
     }
 
     @Operation(summary = "Get transaction by ID")
