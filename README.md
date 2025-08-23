@@ -259,7 +259,6 @@ While the core requirements have been fully implemented, there are several poten
 -   **Dead-Letter Queue (DLQ):** Enhance the RabbitMQ consumer to move failed messages to a DLQ for manual analysis and reprocessing, preventing data loss.
 -   **Authentication & Authorization:** Implement a security layer using Spring Security and JWT to ensure that users can only access and manage their own financial resources.
 -   **Comprehensive Unit and Integration Testing:** Create tests to cover all service-layer business logic and API endpoint behaviors.
--   **Containerization and Deployment:** Create a `Dockerfile` for the application and a `docker-compose.yml` file to orchestrate the API and the PostgreSQL database for easy deployment to a cloud environment.
 
 ---
 
