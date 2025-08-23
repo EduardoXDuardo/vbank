@@ -6,16 +6,19 @@
 
 ## 🏦 Project Description
 
-VBank is a core banking API designed to manage clients, digital accounts, and financial transactions. This project serves as a robust and scalable backend solution, built with Java and Spring Boot, demonstrating best practices in REST API design, advanced data querying, and clean architecture.
+VBank is a core banking API designed to manage clients, digital accounts, and financial transactions. This project serves as a robust and scalable backend solution, built with Java and Spring Boot, demonstrating best practices in REST API design, asynchronous processing, and clean architecture.
 
-The system provides a complete CRUD interface for client and account management, along with a secure transaction processing engine for deposits and withdrawals.
+The system provides a complete CRUD interface for client and account management, along with a resilient, event-driven transaction processing engine.
 
 ## ✅ Project Status
 
 **Last Updated:** 2025-08-23
 
+This project is **fully completed** (can still be improved tho), including all core requirements and a bonus implementation of an advanced architectural pattern.
+
 ### ✨ Main Features
 
+-   **Asynchronous Transaction Processing:** Utilizes `RabbitMQ` to process financial transactions asynchronously, ensuring high performance and resilience.
 -   **Layered Architecture** with a clear separation of concerns (Controllers, Services, Repositories, Mappers).
 -   **Complete Client Management** (Create, Read, Update, Delete).
 -   **Complete Account Management** (Create, Read, Delete with business rule validation).
@@ -34,6 +37,7 @@ The system provides a complete CRUD interface for client and account management,
 -   Java 21 JDK
 -   PostgreSQL 15+
 -   Maven 3.9+
+-   Docker Desktop (for the RabbitMQ broker)
 -   An IDE (e.g., IntelliJ, VSCode) or a terminal.
 
 ### How to Run the Project
@@ -63,6 +67,7 @@ The system provides a complete CRUD interface for client and account management,
 -   **Backend:** Java 21, Spring Boot 3
 -   **Data:** Spring Data JPA, Hibernate, PostgreSQL
 -   **Advanced Querying:** JPA Specifications
+-   **Messaging:** Spring AMQP, RabbitMQ, Docker Compose
 -   **Documentation:** SpringDoc OpenAPI (Swagger UI)
 -   **Build Tool:** Maven
 -   **Code Quality:** Lombok
@@ -227,8 +232,7 @@ The UI provides detailed information on all available endpoints, parameters, req
 
 ## 💡 Design Decisions & Architecture Highlights
 
-This project incorporates several professional design patterns and best practices:
-
+-   **Asynchronous Architecture with RabbitMQ:** The most critical operation (transaction processingis handled asynchronously. When a transaction is requested, the API immediately creates a `PENDING` record and publishes an event to a RabbitMQ queue, responding to the client with `202 Accepted`. A separate consumer processes the transaction in the background, updating its final status to `COMPLETED` or `FAILED`. This event-driven approach ensures the API remains fast and responsive, even under heavy load, and increases the system's resilience to failures.
 -   **Layered Architecture:** The project follows a clean architecture with distinct layers for Controllers (handling HTTP requests), Services (business logic), Repositories (data access), and Mappers (DTO-Entity conversions). This separation of concerns enhances maintainability and testability.
 -   **Paginated Responses:** All endpoints that can return a list of resources are paginated using Spring's `Pageable` interface to ensure API performance and scalability.
 -   **JPA Specifications:** Instead of simple queries, the API uses JPA Specifications for all search endpoints. This allows for clean, type-safe, and dynamic query building based on optional filter criteria.
@@ -243,7 +247,7 @@ This project incorporates several professional design patterns and best practice
 
 While the core requirements have been fully implemented, there are several potential enhancements and features that could be added in future iterations:
 
--   **Asynchronous Transaction Processing:** Refactor the transaction creation logic to be asynchronous. The API would create a `PENDING` transaction and publish an event to a message queue (e.g., RabbitMQ, Kafka, or SQS). A separate consumer would process the transaction, updating its final status to `COMPLETED` or `FAILED`. This would increase the API's responsiveness and resilience.
+-   **Dead-Letter Queue (DLQ):** Enhance the RabbitMQ consumer to move failed messages to a DLQ for manual analysis and reprocessing, preventing data loss.
 -   **Authentication & Authorization:** Implement a security layer using Spring Security and JWT to ensure that users can only access and manage their own financial resources.
 -   **Comprehensive Unit and Integration Testing:** Create tests to cover all service-layer business logic and API endpoint behaviors.
 -   **Containerization and Deployment:** Create a `Dockerfile` for the application and a `docker-compose.yml` file to orchestrate the API and the PostgreSQL database for easy deployment to a cloud environment.
