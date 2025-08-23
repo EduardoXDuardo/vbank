@@ -54,17 +54,17 @@ The project is fully containerized with Docker Compose, making the setup process
     -   In the root of the project, rename the file `.env.example` to `.env`.
     -   (Opcional) Open the `.env` file and change the default database password if you wish.
 
-3.  **Run the Application:**
+3.  **Build and Run the Entire Stack:**
     -   Ensure Docker Desktop is running.
     -   Execute the following command from the project root:
     ```bash
-    mvn spring-boot:run
+    docker compose up --build
     ```
 
 The `spring-boot-docker-compose` dependency will automatically:
-1.  Read the `compose.yaml` file.
-2.  Start the **PostgreSQL** and **RabbitMQ** containers.
-3.  Configure the Spring application to connect to them seamlessly.
+1.  Build the Docker image for the VBank API using the multi-stage `Dockerfile`.
+2.  Start the **VBank API**, **PostgreSQL** and **RabbitMQ** containers.
+3.  Establish a network between them for seamless communication.
 
 The API will be available at `http://localhost:8080`.
 
@@ -75,7 +75,8 @@ The API will be available at `http://localhost:8080`.
 -   **Backend:** Java 21, Spring Boot 3
 -   **Data:** Spring Data JPA, Hibernate, PostgreSQL
 -   **Advanced Querying:** JPA Specifications
--   **Messaging:** Spring AMQP, RabbitMQ, Docker Compose
+-   **Messaging:** Spring AMQP, RabbitMQ
+-   **Containerization:** Docker, Docker Compose
 -   **Documentation:** SpringDoc OpenAPI (Swagger UI)
 -   **Configuration:** `spring-boot-dotenv` for externalized configuration
 -   **Build Tool:** Maven

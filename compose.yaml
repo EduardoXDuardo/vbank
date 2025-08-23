@@ -1,4 +1,29 @@
 services:
+
+  vbank:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: 'vbank'
+
+    # Default map port for the backend service
+    ports:
+      - "8000:8000"
+
+    # Set environment variables for the backend service
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+    # Ensure the backend service waits for RabbitMQ and PostgreSQL to be ready
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   rabbitmq:
     image: 'rabbitmq:3-management'
 
