@@ -182,6 +182,8 @@ The complete and interactive API documentation is available via Swagger UI.
 Once the application is running, the interactive Swagger UI can be accessed at:
 `http://localhost:8080/swagger-ui.html`
 
+The UI provides detailed information on all available endpoints, parameters, request bodies, and response schemas, and allows for direct API testing from the browser.
+
 ### 🧪 API Testing with Postman
 
 This project includes a Postman collection with all the available endpoints for easy testing and exploration.
@@ -189,8 +191,6 @@ This project includes a Postman collection with all the available endpoints for 
 Click the button below to import the collection into your Postman application:
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/luizdudu35/workspace/public-projects/collection/46291934-d2066ed0-ac24-4854-9983-0384dc4f7c8e?action=share&creator=46291934)
-
-The UI provides detailed information on all available endpoints, parameters, request bodies, and response schemas, and allows for direct API testing from the browser.
 
 <details>
 <summary><b>Client Endpoints (`/api/clients`)</b></summary>
