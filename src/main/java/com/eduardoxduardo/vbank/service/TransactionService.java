@@ -1,5 +1,7 @@
 package com.eduardoxduardo.vbank.service;
 
+import com.eduardoxduardo.vbank.config.RabbitMQConfig;
+import com.eduardoxduardo.vbank.dto.transaction.TransactionEventDTO;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionRequestDTO;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionResponseDTO;
 import com.eduardoxduardo.vbank.dto.transaction.TransactionSearchCriteria;
@@ -7,11 +9,10 @@ import com.eduardoxduardo.vbank.mapper.TransactionMapper;
 import com.eduardoxduardo.vbank.model.entities.Account;
 import com.eduardoxduardo.vbank.model.entities.Transaction;
 import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
-import com.eduardoxduardo.vbank.model.enums.TransactionType;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
-import com.eduardoxduardo.vbank.service.exceptions.BusinessViolationException;
 import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -28,48 +28,34 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final RabbitTemplate rabbitTemplate;
 
 
     @Transactional
-    public TransactionResponseDTO execute(TransactionRequestDTO request) {
-        /*
-            TODO: REFACTOR FOR ASYNCHRONOUS PROCESSING (PRODUCTION ARCHITECTURE) using a message queue (like RabbitMQ, SQS, or Kafka)
-
-            The flow would be:
-            1.  PRODUCER (This method):
-                -   Validate the incoming request DTO.
-                -   Create and save a Transaction entity with an initial 'PENDING' status.
-                -   Publish a message/event with the transaction details to a queue.
-                -   Immediately return an HTTP 202 Accepted response to the client.
-
-            2.  CONSUMER (A separate @RabbitListener component):
-                -   A background worker would consume the message from the queue in a separate transaction.
-                -   Fetch the PENDING transaction from the database.
-                -   Execute the core business logic (balance checks, updating the account balance).
-
-            3.  FINAL STATUS UPDATE:
-                -   If the processing is successful, the consumer updates the transaction status to 'COMPLETED'.
-                -   If it fails (e.g., insufficient funds), it updates the status to 'FAILED' and could trigger a notification.
-        */
-
-        // --- Current Synchronous Implementation ---
+    public TransactionResponseDTO request(TransactionRequestDTO request) {
 
         Account account = accountRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account with ID: " + request.getAccountId() + " not found"));
 
-        // Validate transaction type and amount
-        if (request.getType() == TransactionType.DEPOSIT) {
-            processDeposit(account, request.getAmount());
-        } else if (request.getType() == TransactionType.WITHDRAWAL) {
-            processWithdrawal(account, request.getAmount());
-        }
+        // Create a new transaction with PENDING status
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(request.getAmount());
+        transaction.setType(request.getType());
+        transaction.setTimestamp(LocalDateTime.now());
+        transaction.setStatus(TransactionStatus.PENDING); // Initial status is PENDING
 
-        // If reached here, the transaction has been processed successfully
-        // Saves the transaction as completed and updates the account balance
-        accountRepository.save(account);
-        Transaction transaction = recordTransaction(account, request.getType(), request.getAmount());
+        // Save the transaction to get an ID
+        Transaction pendingTransaction = transactionRepository.save(transaction);
 
-        return TransactionMapper.toDTO(transaction);
+        // Send a message to RabbitMQ for asynchronous processing
+        TransactionEventDTO event = new TransactionEventDTO(pendingTransaction.getId());
+
+        // Send the event to the specified exchange with the routing key
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, event);
+
+        // Return the pending transaction details
+        return TransactionMapper.toDTO(pendingTransaction);
     }
 
     @Transactional(readOnly = true)
@@ -85,34 +71,6 @@ public class TransactionService {
         Specification<Transaction> spec = createSpecification(criteria);
         Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         return transactions.map(TransactionMapper::toDTO);
-    }
-
-    private void processDeposit(Account account, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessViolationException("Deposit amount must be greater than zero");
-        }
-        account.setBalance(account.getBalance().add(amount));
-    }
-
-    private void processWithdrawal(Account account, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessViolationException("Withdrawal amount must be greater than zero");
-        }
-        if (account.getBalance().compareTo(amount) < 0) {
-            throw new BusinessViolationException("The withdrawal amount exceeds the account balance.");
-        }
-        account.setBalance(account.getBalance().subtract(amount));
-    }
-
-    private Transaction recordTransaction(Account account, TransactionType type, BigDecimal amount) {
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setAmount(amount);
-        transaction.setType(type);
-        transaction.setTimestamp(LocalDateTime.now());
-        transaction.setStatus(TransactionStatus.COMPLETED);
-
-        return transactionRepository.save(transaction);
     }
 
     private Specification<Transaction> createSpecification(TransactionSearchCriteria criteria) {
