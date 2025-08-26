@@ -10,6 +10,7 @@ import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.ClientRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
+import com.eduardoxduardo.vbank.repository.specification.SpecificationBuilder;
 import com.eduardoxduardo.vbank.service.exceptions.BusinessViolationException;
 import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.Objects;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final SpecificationBuilder<Account, AccountSearchCriteria> specificationBuilder;
     private final ClientRepository clientRepository;
     private final TransactionRepository transactionRepository;
 
@@ -64,7 +66,7 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Page<AccountResponseDTO> search(AccountSearchCriteria criteria, Pageable pageable) {
-        Specification<Account> spec = createSpecification(criteria);
+        Specification<Account> spec = specificationBuilder.build(criteria);
 
         Page<Account> accountsPage = accountRepository.findAll(spec, pageable);
 
@@ -92,25 +94,5 @@ public class AccountService {
 
     private String generateAccountNumber(Long clientId) {
         return String.format("%04d-1", clientId);
-    }
-
-    private Specification<Account> createSpecification(AccountSearchCriteria criteria) {
-        return (root, query, cb) -> {
-            var predicates = cb.conjunction();
-
-            if (criteria.getId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("id"), criteria.getId()));
-            }
-
-            if (criteria.getAccountNumber() != null && !criteria.getAccountNumber().isEmpty()) {
-                predicates = cb.and(predicates, cb.equal(root.get("accountNumber"), criteria.getAccountNumber()));
-            }
-
-            if (criteria.getClientId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("client").get("id"), criteria.getClientId()));
-            }
-
-            return predicates;
-        };
     }
 }

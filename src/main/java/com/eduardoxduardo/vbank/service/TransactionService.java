@@ -11,6 +11,7 @@ import com.eduardoxduardo.vbank.model.entities.Transaction;
 import com.eduardoxduardo.vbank.model.enums.TransactionStatus;
 import com.eduardoxduardo.vbank.repository.AccountRepository;
 import com.eduardoxduardo.vbank.repository.TransactionRepository;
+import com.eduardoxduardo.vbank.repository.specification.SpecificationBuilder;
 import com.eduardoxduardo.vbank.service.exceptions.ResourceNotFoundException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final SpecificationBuilder<Transaction, TransactionSearchCriteria> specificationBuilder;
     private final RabbitTemplate rabbitTemplate;
 
 
@@ -68,41 +70,8 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Page<TransactionResponseDTO> search(TransactionSearchCriteria criteria, Pageable pageable) {
-        Specification<Transaction> spec = createSpecification(criteria);
+        Specification<Transaction> spec = specificationBuilder.build(criteria);
         Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         return transactions.map(TransactionMapper::toDTO);
-    }
-
-    private Specification<Transaction> createSpecification(TransactionSearchCriteria criteria) {
-        return (root, query, cb) -> {
-            var predicates = cb.conjunction();
-
-            if (criteria.getId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("id"), criteria.getId()));
-            }
-            if (criteria.getAccountId() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("account").get("id"), criteria.getAccountId()));
-            }
-            if (criteria.getType() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("type"), criteria.getType()));
-            }
-            if (criteria.getStatus() != null) {
-                predicates = cb.and(predicates, cb.equal(root.get("status"), criteria.getStatus()));
-            }
-            if (criteria.getMinAmount() != null) {
-                predicates = cb.and(predicates, cb.greaterThanOrEqualTo(root.get("amount"), criteria.getMinAmount()));
-            }
-            if (criteria.getMaxAmount() != null) {
-                predicates = cb.and(predicates, cb.lessThanOrEqualTo(root.get("amount"), criteria.getMaxAmount()));
-            }
-            if (criteria.getAfterDate() != null) {
-                predicates = cb.and(predicates, cb.greaterThanOrEqualTo(root.get("timestamp"), criteria.getAfterDate()));
-            }
-            if (criteria.getBeforeDate() != null) {
-                predicates = cb.and(predicates, cb.lessThanOrEqualTo(root.get("timestamp"), criteria.getBeforeDate()));
-            }
-
-            return predicates;
-        };
     }
 }
