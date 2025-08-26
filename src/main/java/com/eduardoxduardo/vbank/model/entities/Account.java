@@ -3,6 +3,7 @@ package com.eduardoxduardo.vbank.model.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 @Table(name = "accounts")
 @Entity
 public class Account implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

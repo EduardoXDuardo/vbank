@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
         String error = "Validation error";
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY; // 422
 
-        ValidationError err = new ValidationError(Instant.now(), status.value(), error, "Erro de validação nos dados de entrada", request.getRequestURI());
+        ValidationError err = new ValidationError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 
         for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
             err.addError(fieldError.getField(), fieldError.getDefaultMessage());
