@@ -13,7 +13,7 @@ The system provides a complete CRUD interface for client and account management,
 
 ## ✅ Project Status
 
-**Last Updated:** 2025-08-23
+**Last Updated:** 2025-08-27
 
 This project is **fully completed** (can still be improved tho), including all core requirements and a bonus implementation of an advanced architectural pattern.
 
@@ -28,6 +28,7 @@ This project is **fully completed** (can still be improved tho), including all c
 -   **Pagination and Sorting** on all list endpoints.
 -   **Error Handling** with a global `@ControllerAdvice` for `404`, `400`, and `422` error responses.
 -   **Input Validation** on DTOs.
+-   **Multi-Profile Configuration:** Supports distinct configurations for `dev`, `test`, and `prod` environments using Spring Profiles.
 -   **Interactive API Documentation** via Swagger/OpenAPI.
 
 ---
@@ -37,36 +38,53 @@ This project is **fully completed** (can still be improved tho), including all c
 ### Prerequisites
 -   Java 21 JDK
 -   Maven 3.9+
--   Docker Desktop
--   An IDE (e.g., IntelliJ, VSCode) or a terminal.
+-   Docker Desktop (needs to be running to use Docker Compose)
+-   Postman (optional, for API testing)
 
 ### How to Run the Project
 
-The project is fully containerized with Docker Compose, making the setup process extremely simple.
+The project is fully containerized with Docker Compose, making the setup process extremely simple and consistent across different machines.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/EduardoXDuardo/vbank.git
+    git clone [https://github.com/EduardoXDuardo/vbank.git](https://github.com/EduardoXDuardo/vbank.git)
     cd vbank
     ```
 
 2.  **Configure Environment Variables:**
     -   In the root of the project, rename the file `.env.example` to `.env`.
-    -   (Opcional) Open the `.env` file and change the default database password if you wish.
+    -   No changes are needed to run in the default development mode.
 
-3.  **Build and Run the Entire Stack:**
+3.  **Run the Development Environment:**
+    -   In the .env file, set the `SPRING_PROFILES_ACTIVE` variable to `dev` (it is already set to `dev` by default).
     -   Ensure Docker Desktop is running.
-    -   Execute the following command from the project root:
+    -   Open a terminal in the project root and execute:
     ```bash
-    docker compose up --build
+    docker compose --profile dev up --build
     ```
 
-The `spring-boot-docker-compose` dependency will automatically:
-1.  Build the Docker image for the VBank API using the multi-stage `Dockerfile`.
-2.  Start the **VBank API**, **PostgreSQL** and **RabbitMQ** containers.
-3.  Establish a network between them for seamless communication.
+    **Run the Full Production-like Stack (Optional):**
+    -   In the `.env` file, set the `SPRING_PROFILES_ACTIVE` variable to `prod`.
+    -   Ensure Docker Desktop is running.
+    -   Open a terminal in the project root and execute:
+    ```bash
+    docker compose --profile prod up --build
+    ```
+    
+    **Run Tests:**
+    -   In the `.env` file, set the `SPRING_PROFILES_ACTIVE` variable to `test`.
+    ```bash
+    ./mvnw clean verify
+    ```
+4.  **Access the Application:**
+    -   The API will be accessible at `http://localhost:8080`.
+    -   Swagger UI for API documentation will be available at `http://localhost:8080/swagger-ui.html`.
 
-The API will be available at `http://localhost:8080`.
+5.  **Stopping the Application:**
+    -   To stop the application and remove the containers, networks, and volumes created by Docker Compose, run
+    ```bash
+    docker compose down -v
+    ```
 
 ---
 
