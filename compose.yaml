@@ -1,62 +1,64 @@
 services:
-
+  # This service is now part of the "prod" profile
+  # It will only start when explicitly requested
   vbank:
     build:
       context: .
       dockerfile: Dockerfile
-
-    container_name: 'vbank'
-
-    # Default map port for the backend service
+    container_name: 'vbank-api'
+    profiles:
+      - "prod"
     ports:
-      - "8000:8000"
-
-    # Set environment variables for the backend service
+      - "8080:8080"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-
-    # Ensure the backend service waits for RabbitMQ and PostgreSQL to be ready
+      # Activate the 'prod' Spring profile inside the container
+      - SPRING_PROFILES_ACTIVE=prod
+      # Provide the environment variables needed by application-prod.properties
+      - DB_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
 
+  # These infrastructure services have no profile, making them "default"
   rabbitmq:
     image: 'rabbitmq:3-management'
-
     container_name: 'vbank-rabbitmq'
-
-    # Default map ports for RabbitMQ and its management UI
     ports:
       - "5672:5672"
       - "15672:15672"
-
-    # Set environment variables for RabbitMQ
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: 'postgres:15-alpine'
-
     container_name: 'vbank-postgres'
-
-    # Default map port for PostgreSQL
     ports:
       - "5432:5432"
-
-      # Set environment variables for PostgreSQL
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-
-    # Volume to persist PostgreSQL data
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-    pgdata:
+  pgdata:
