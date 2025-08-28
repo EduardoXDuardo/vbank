@@ -33,6 +33,9 @@ public class ClientService {
         if (clientRepository.existsByEmail(request.getEmail())) {
             throw new BusinessViolationException("Client with the email" + request.getEmail() + " already exists");
         }
+        if (clientRepository.existsByPhone(request.getPhone())) {
+            throw new BusinessViolationException("Client with the phone" + request.getPhone() + " already exists");
+        }
 
         Client client = ClientMapper.toEntity(request);
         Client savedClient = clientRepository.save(client);
