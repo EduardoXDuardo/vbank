@@ -79,6 +79,10 @@ public class ClientService {
         }
 
         if (request.getPhone() != null && !request.getPhone().isEmpty()) {
+            if (!request.getPhone().equals(existingClient.getPhone()) &&
+                    clientRepository.existsByPhone(request.getPhone())) {
+                throw new BusinessViolationException("Client with the phone" + request.getPhone() + " already exists");
+            }
             existingClient.setPhone(request.getPhone());
         }
 
@@ -93,6 +97,7 @@ public class ClientService {
 
     @Transactional
     public void delete(Long id) {
+        // TODO: Check if the client has any associated accounts before deleting or soft delete
         // Check if the client exists
         if (!clientRepository.existsById(id)) {
             throw new ResourceNotFoundException("Client with ID: " + id + " not found");
