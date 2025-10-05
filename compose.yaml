@@ -1,21 +1,20 @@
+version: '3.8'
+
 services:
-  vbank:
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: 'vbank-api'
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - DB_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASS=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
       - RABBITMQ_USER=${RABBITMQ_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
     depends_on:
@@ -23,6 +22,20 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    networks:
+      - vbank-net
+
+  frontend:
+    build:
+      context: ./frontend # Aponta para a pasta do frontend
+      dockerfile: Dockerfile
+    container_name: 'vbank-frontend'
+    ports:
+      - "80:80" # Expõe o Nginx na porta 80
+    depends_on:
+      - backend
+    networks:
+      - vbank-net
 
   rabbitmq:
     image: 'rabbitmq:3-management'
@@ -38,6 +51,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - vbank-net
 
   postgres:
     image: 'postgres:15-alpine'
@@ -55,6 +70,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - vbank-net
 
 volumes:
   pgdata:
+
+networks:
+  vbank-net:
+    driver: bridge
